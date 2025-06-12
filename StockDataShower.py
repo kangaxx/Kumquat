@@ -5,7 +5,7 @@ from tkinter import filedialog, ttk, messagebox
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+from StockProcessData import ProcessType, process_json_file
 
 class DataViewerApp:
   """
@@ -74,7 +74,7 @@ class DataViewerApp:
     file_path = os.path.join(self.folder_path, selected_file)
 
     try:
-      df = pd.read_json(file_path)
+      df = process_json_file(file_path, ProcessType.NO_PROCESS)
 
       # 清空旧数据
       for col in self.tree["columns"]:
@@ -144,8 +144,8 @@ class DataViewerApp:
                     color=rect_color, zorder=2
                 )
             )
-            ax_k.scatter(i - 0.001, high_price, color=rect_color, s=10, zorder=3)
-            ax_k.scatter(i - 0.001, low_price, color=rect_color, s=10, zorder=3)
+            ax_k.scatter(i - 0.001, high_price, color=rect_color, s=1.01, zorder=3)
+            ax_k.scatter(i - 0.001, low_price, color=rect_color, s=1.01, zorder=3)
             ax_k.add_patch(
                 mpatches.Rectangle(
                     (i - 0.04, low_price), 0.08, high_price - low_price,
