@@ -28,6 +28,19 @@ class DataViewerApp:
     self.folder_button = tk.Button(top_frame, text="选择文件夹", command=self.select_folder)
     self.folder_button.pack(side=tk.LEFT, padx=5)
 
+    # 添加处理类型下拉框
+    self.process_type_var = tk.StringVar()
+    self.process_type_combobox = ttk.Combobox(
+        top_frame,
+        textvariable=self.process_type_var,
+        state="readonly",
+        values=[e.desc for e in ProcessType]
+    )
+    tk.Label(top_frame, text="处理类型").pack(side=tk.LEFT)
+    self.process_type_combobox.current(0)
+    self.process_type_combobox.pack(side=tk.LEFT, padx=5)
+
+
     # 筛选输入框和按钮
     self.filter_entry = tk.Entry(top_frame, width=20)
     self.filter_entry.pack(side=tk.LEFT, padx=5)
@@ -47,14 +60,25 @@ class DataViewerApp:
     # 默认文件夹路径
     self.folder_path = default_folder
     self.all_files = []  # 保存所有文件名
+    # 启动时自动选择文件夹
+    if os.path.exists(self.folder_path):
+          self.load_value_json_files()
+    else:
+          messagebox.showwarning("警告", f"默认文件夹不存在: {self.folder_path}")
   def select_folder(self):
-    """
-    弹出文件夹选择对话框，选择后加载该文件夹下的JSON文件列表。
-    """
-    self.folder_path = filedialog.askdirectory(initialdir=self.folder_path)
-    if not self.folder_path:
-      return
-    self.load_value_json_files()
+      """
+      弹出文件夹选择对话框，选择后加载该文件夹下的JSON文件列表。
+      """
+      path = filedialog.askdirectory(initialdir=self.folder_path)
+      if not path:
+          path = self.folder_path  # 用户取消选择时，使用默认路径
+      if not os.path.exists(path) or not os.path.isdir(path):
+          messagebox.showerror("错误", f"路径不存在: {path}")
+          return
+      self.folder_path = path
+      self.load_value_json_files()
+      if not self.all_files:
+          messagebox.showerror("错误", f"文件夹内没有合法的JSON文件: {self.folder_path}")
 
   def load_value_json_files(self):
     self.file_listbox.delete(0, tk.END)
@@ -74,7 +98,10 @@ class DataViewerApp:
     file_path = os.path.join(self.folder_path, selected_file)
 
     try:
-      df = process_json_file(file_path, ProcessType.NO_PROCESS)
+      # 获取选中的ProcessType
+      process_type_desc = self.process_type_var.get()
+      process_type = next((e for e in ProcessType if e.desc == process_type_desc), ProcessType.NO_PROCESS)
+      df = process_json_file(file_path, process_type)
 
       # 清空旧数据
       for col in self.tree["columns"]:
@@ -92,6 +119,20 @@ class DataViewerApp:
 
       self.current_data = df  # 保存当前数据
 
+      # 只对“持仓量”及之前的字段自适应宽度
+      columns = list(df.columns)
+      last_idx = 13
+      font = ("微软雅黑", 10)
+      for idx, col in enumerate(columns):
+        if idx <= last_idx:
+            max_width = max(
+                [len(str(col))] +
+                [len(str(row[col])) for _, row in df.iterrows()]
+            )
+            pixel_width = max_width * 10 + 20
+            self.tree.column(col, width=pixel_width)
+        else:
+            self.tree.column(col, width=100)  # 后续字段宽度固定
     except Exception as e:
       messagebox.showerror("错误", f"无法加载文件: {e}")
 
