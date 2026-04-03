@@ -1,0 +1,10 @@
+name: kumquat-py311-macos
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.5
+  - pandas
+  - matplotlib
+  - openpyxl
+  - tk
+  - pip

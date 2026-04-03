@@ -1,0 +1,10 @@
+name: kumquat-py311-ubuntu2204
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.5
+  - pandas
+  - matplotlib
+  - openpyxl
+  - tk
+  - pip

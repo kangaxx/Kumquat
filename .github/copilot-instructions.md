@@ -32,5 +32,19 @@
 - 涉及批量删文件的操作（如 `StockFileClear.py`、`.temp` 清理）必须先确认目标目录，避免误删。
 - 若改动字段名映射逻辑，需同步检查 `StockJsonTransfer.py` 与 `StockProcessData.py` 的字段读取一致性。
 
+## Execution Memory
+- 所有任务都必须先基于 `.github/templates/task-plan.template.md` 形成执行计划，并持续更新状态。
+- 每次发生代码修改后，必须在 `docs/change-meeting-log.md` 追加一条记录（不可跳过）。
+- 记录项至少包含：时间、Git 版本（`git rev-parse --short HEAD`）、修改目的、修改文件、验证结果、下一步。
+- 会议复盘时，统一以 `docs/change-meeting-log.md` 为唯一回查台账；避免分散记录。
+
+## Traceability Format
+- 改动目的要写“业务目的 + 技术动作”，例如“修复导入副作用：将示例调用移入 `if __name__ == "__main__"`”。
+- 修改文件写相对路径列表；验证结果写可复现命令或人工检查结论。
+- 若当前轮未修改代码，也要记录“无代码改动”与原因，保证会议信息连续。
+
 ## References
 - 项目概览与版本信息：`README.md`
+- 计划模板：`.github/templates/task-plan.template.md`
+- 变更记录模板：`.github/templates/change-record.template.md`
+- 会议回查台账：`docs/change-meeting-log.md`
