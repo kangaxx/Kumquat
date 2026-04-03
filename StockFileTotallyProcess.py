@@ -15,21 +15,29 @@ import StockJsonTransfer
 import StockTempFile
 import StockCombineFile
 
-if __name__ == "__main__":
+DEFAULT_INPUT_FOLDER = StockDataSpliter.DEFAULT_INPUT_FOLDER
+DEFAULT_OUTPUT_FOLDER = StockDataSpliter.DEFAULT_OUTPUT_FOLDER
+
+
+def main(input_folder=DEFAULT_INPUT_FOLDER, output_folder=DEFAULT_OUTPUT_FOLDER):
     # 1. 拆分Excel并生成json
     print("正在拆分Excel文件...")
-    StockDataSpliter.main()  # 假设你将示例用法部分封装为main()
+    StockDataSpliter.main(input_folder, output_folder)
 
     # 2. 转换json字段
     print("正在转换json字段...")
-    StockJsonTransfer.process_value_and_title_files(r"E:\stock_json")
+    StockJsonTransfer.main(output_folder)
 
     # 3. 处理临时文件
     print("正在处理临时文件...")
-    StockTempFile.main()  # 假设有main函数
+    StockTempFile.main(output_folder)
 
     # 4. 合并文件
     print("正在合并文件...")
-    StockCombineFile.main()  # 假设有main函数
+    StockCombineFile.main(output_folder)
 
     print("全部处理完成。")
+
+
+if __name__ == "__main__":
+    main()

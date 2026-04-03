@@ -2,6 +2,9 @@ import os
 import json
 
 
+DEFAULT_FOLDER = r"E:\stock_json"
+
+
 def is_nan(obj):
   """检查对象是否为NaN（仅适用于数值类型）"""
   return isinstance(obj, float) and obj != obj  # NaN是唯一不等于自身的值
@@ -54,6 +57,10 @@ def fill_contract_and_save(folder_path):
                 json.dump(data, f, ensure_ascii=False, indent=4)
             # print(f"已保存: {new_path}")
 
-# 示例用法
-folder_path = r"E:\stock_json"
-fill_contract_and_save(folder_path)
+
+def main(folder_path=DEFAULT_FOLDER):
+    fill_contract_and_save(folder_path)
+
+
+if __name__ == "__main__":
+    main()

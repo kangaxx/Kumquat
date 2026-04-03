@@ -10,14 +10,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import os
+import platform
 import pandas as pd
-import tkinter as tk
-from tkinter import filedialog, ttk, messagebox
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+try:
+    import tkinter as tk
+    from tkinter import filedialog, ttk, messagebox
+except Exception:
+    tk = None
+    filedialog = None
+    ttk = None
+    messagebox = None
+
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+except Exception:
+    plt = None
+    mpatches = None
+    FigureCanvasTkAgg = None
+
+import StockFileTotallyProcess
 from StockProcessData import ProcessType, process_json_file
+
+
+DEFAULT_DATA_FOLDER = StockFileTotallyProcess.DEFAULT_OUTPUT_FOLDER
+DEFAULT_INPUT_FOLDER = StockFileTotallyProcess.DEFAULT_INPUT_FOLDER
 
 
 class DataViewerApp:
@@ -384,8 +405,69 @@ class DataViewerApp:
             messagebox.showerror("错误", f"无法生成K线图: {e}")
 
 
-if __name__ == "__main__":
-    # 启动主程序
+def run_ui(default_folder):
+    if tk is None or plt is None or FigureCanvasTkAgg is None:
+        print("UI 模式启动失败：缺少 tkinter 或 matplotlib GUI 依赖。")
+        return 1
+
     root = tk.Tk()
-    app = DataViewerApp(root, r"E:\stock_json")
+    DataViewerApp(root, default_folder)
     root.mainloop()
+    return 0
+
+
+def run_cli(input_folder, data_folder):
+    print("进入命令行模式。")
+    print(f"输入目录: {input_folder}")
+    print(f"数据目录: {data_folder}")
+
+    while True:
+        print("\n==== 命令行菜单 ====")
+        print("1. 执行全流程（拆分 -> 转换 -> 补全 -> 合并）")
+        print("2. 查看数据目录中的 json 文件")
+        print("0. 退出")
+        choice = input("请选择操作: ").strip()
+
+        if choice == "1":
+            StockFileTotallyProcess.main(input_folder, data_folder)
+        elif choice == "2":
+            if not os.path.isdir(data_folder):
+                print(f"目录不存在: {data_folder}")
+                continue
+            json_files = [file for file in os.listdir(data_folder) if file.endswith(".json")]
+            if not json_files:
+                print("未找到 .json 文件")
+                continue
+            print("发现以下 json 文件:")
+            for name in json_files:
+                print(name)
+        elif choice == "0":
+            print("命令行模式已退出。")
+            return 0
+        else:
+            print("无效输入，请重新选择。")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Kumquat 双启动入口")
+    parser.add_argument("--debug", action="store_true", help="强制进入命令行模式")
+    parser.add_argument("--run-pipeline", action="store_true", help="命令行模式下直接执行一次全流程并退出")
+    parser.add_argument("--input-folder", default=DEFAULT_INPUT_FOLDER, help="原始 Excel 输入目录")
+    parser.add_argument("--data-folder", default=DEFAULT_DATA_FOLDER, help="中间文件与结果输出目录")
+    args = parser.parse_args(argv)
+
+    is_windows = platform.system().lower().startswith("win")
+    use_cli = args.debug or not is_windows
+
+    if use_cli:
+        if args.run_pipeline:
+            print("命令行模式：执行一次全流程后退出。")
+            StockFileTotallyProcess.main(args.input_folder, args.data_folder)
+            return 0
+        return run_cli(args.input_folder, args.data_folder)
+
+    return run_ui(args.data_folder)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

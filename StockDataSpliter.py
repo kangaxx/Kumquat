@@ -3,6 +3,10 @@ import pandas as pd
 import json
 
 
+DEFAULT_INPUT_FOLDER = r'E:\work_codes\Stock&Futures\上期所\原始数据'
+DEFAULT_OUTPUT_FOLDER = r'E:\stock_json'
+
+
 def find_excel_files(folder_path):
     excel_files = []
     for root, dirs, files in os.walk(folder_path):
@@ -49,13 +53,12 @@ def convert_excel_to_json(excel_file, output_folder):
         print(f"转换失败: {excel_file}, 错误: {e}")
 
 
-# 示例用法
-input_folder = r'E:\work_codes\Stock&Futures\上期所\原始数据'
-output_folder = r'E:\stock_json'
+def main(input_folder=DEFAULT_INPUT_FOLDER, output_folder=DEFAULT_OUTPUT_FOLDER):
+    os.makedirs(output_folder, exist_ok=True)
+    excel_files = find_excel_files(input_folder)
+    for excel_file in excel_files:
+        convert_excel_to_json(excel_file, output_folder)
 
-# 确保输出文件夹存在
-os.makedirs(output_folder, exist_ok=True)
 
-excel_files = find_excel_files(input_folder)
-for excel_file in excel_files:
-    convert_excel_to_json(excel_file, output_folder)
+if __name__ == "__main__":
+    main()

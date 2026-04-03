@@ -2,6 +2,9 @@ import os
 import json
 
 
+DEFAULT_FOLDER = r"E:\stock_json"
+
+
 def process_value_and_title_files(folder_path):
   # 遍历指定文件夹中的所有文件
   for file in os.listdir(folder_path):
@@ -75,6 +78,11 @@ def process_value_and_title_files(folder_path):
                   indent=4)
 
       print(f"已生成文件: {finished_file_path}")
-# 示例用法
-folder_path = r"E:\stock_json"  # 指定文件夹路径
-process_value_and_title_files(folder_path)  # 调用函数处理文件
+
+
+def main(folder_path=DEFAULT_FOLDER):
+  process_value_and_title_files(folder_path)
+
+
+if __name__ == "__main__":
+  main()

@@ -1,6 +1,9 @@
 import os
 import json
 
+
+DEFAULT_FOLDER = r"E:\stock_json"
+
 def group_by_contract_and_save(folder_path):
     """
     遍历指定文件夹下所有 .temp 文件，按 "合约" 字段归类数据，
@@ -41,6 +44,11 @@ def group_by_contract_and_save(folder_path):
                 print(f"已删除: {temp_path}")
             except Exception as e:
                 print(f"删除{temp_path}失败: {e}")
-# 示例用法
-folder_path = r"E:\stock_json"
-group_by_contract_and_save(folder_path)
+
+
+def main(folder_path=DEFAULT_FOLDER):
+    group_by_contract_and_save(folder_path)
+
+
+if __name__ == "__main__":
+    main()
